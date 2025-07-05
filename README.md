@@ -1,4 +1,5 @@
-# Broca: Local Chatbot for Pepper Robot
+# Broca: **B**uilt-in **R**obotic **O**ffline **C**onversational **A**pplication
+
 
 Broca is a foundational project for developing a local chatbot designed to interact with the Pepper robot. This project focuses on integrating a small local Large Language Model (LLM) to enable conversational capabilities without relying on external cloud services.
 
