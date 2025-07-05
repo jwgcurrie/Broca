@@ -23,7 +23,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 1.  **Clone the repository**:
     ```bash
-    git clone https://github.com/your-username/broca.git
+    git clone https://github.com/jwgcurrie/broca.git
     cd broca
     ```
 2.  **Create a virtual environment**:
