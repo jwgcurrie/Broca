@@ -1,6 +1,6 @@
 # Broca: Built-in Robotic Offline Conversational Application
 
-Broca is a foundational project for developing a local chatbot designed to interact with robots like Pepper. This project focuses on integrating local Speech-to-Text, a Large Language Model (LLM), and Text-to-Speech to enable fully offline conversational capabilities without relying on cloud services.
+Broca is a foundational project for developing a local chatbot designed to interact onboard social robots like Pepper or iCub. This project focuses on integrating local Speech-to-Text, a Large Language Model (LLM), and Text-to-Speech to enable fully offline conversational capabilities without relying on cloud services.
 
 ### Table of Contents
 * [Features](#features)
