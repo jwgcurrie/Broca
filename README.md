@@ -5,10 +5,12 @@ Broca is a foundational project for developing a local chatbot designed to inter
 
 ## Features
 
+*   **Speech Recognition**: Integrates a local speech-to-text module using `arecord` and Hugging Face Transformers (Whisper model) for voice input.
 *   **Local LLM Integration**: Utilizes Hugging Face's `transformers` library to run a local LLM (currently `HuggingFaceTB/SmolLM2-360M-Instruct`).
 *   **Configurable Personality**: The chatbot's personality can be customized via a system prompt.
 *   **Conversation History**: Maintains a short-term memory of the conversation for more coherent interactions.
-*   **Modular Design**: Separates concerns into `llm_handler.py` (LLM interaction), `pepper_controller.py` (robot interaction), and `main.py` (orchestration).
+*   **Modular Design**: Separates concerns into `llm_handler.py` (LLM interaction), `pepper_controller.py` (robot interaction), `speech_recognition.py` (speech-to-text), and `main.py` (orchestration).
+*   **Component Control**: Command-line arguments allow for individual control over speech recognition, LLM processing, and Pepper's speech output.
 
 ## Getting Started
 
@@ -51,10 +53,30 @@ To run the chatbot, activate your virtual environment and execute the `main.py` 
 
 ```bash
 source broca-py/bin/activate
-python3 src/main.py
+python3 src/main.py [OPTIONS]
 ```
 
-The chatbot will start, and you can begin typing your messages in the terminal. Type `exit` or `quit` to end the conversation.
+**Options:**
+
+*   `--no-speech`: Disable speech recognition and use manual text input.
+*   `--no-llm`: Disable LLM processing and echo input.
+*   `--no-pepper`: Disable Pepper's speech output (responses will be printed to the console).
+
+**Examples:**
+
+*   Run with default settings (speech input, LLM processing, Pepper output):
+    `python3 src/main.py`
+*   Run with text input (no speech recognition):
+    `python3 src/main.py --no-speech`
+*   Run with speech input but no LLM processing (will echo what you say):
+    `python3 src/main.py --no-llm`
+*   Run with speech input and LLM, but no Pepper speech output (will print Broca's response):
+    `python3 src/main.py --no-pepper`
+*   Run with all components disabled (text input, echo, print response):
+    `python3 src/main.py --no-speech --no-llm --no-pepper`
+
+
+The chatbot will start, and you can begin interacting with it. Type `exit` or `quit` to end the conversation.
 
 ## Configuration
 
