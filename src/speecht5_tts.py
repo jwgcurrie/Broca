@@ -2,8 +2,8 @@ import torch
 from transformers import SpeechT5Processor, SpeechT5ForTextToSpeech, SpeechT5HifiGan
 from datasets import load_dataset
 import sounddevice as sd
-import librosa 
-import numpy as np
+import torchaudio
+import numpy as np 
 
 class SpeechT5TTSModule:
     """
@@ -23,7 +23,6 @@ class SpeechT5TTSModule:
         print("Loading speaker embedding from Hugging Face Hub...")
         embeddings_dataset = load_dataset("Matthijs/cmu-arctic-xvectors", split="validation")
         
-        # Select a specific speaker embedding from the dataset
         self.speaker_embeddings = torch.tensor(
             embeddings_dataset[7306]["xvector"]
         ).unsqueeze(0).to(self.device)
@@ -65,18 +64,21 @@ class SpeechT5TTSModule:
                 inputs["input_ids"], 
                 speaker_embeddings=self.speaker_embeddings
             )
-            audio_data = self.vocoder(spectrogram).cpu().to(torch.float32).numpy()
+            audio_tensor = self.vocoder(spectrogram).cpu().to(torch.float32)
 
         source_sample_rate = 16000
-        target_sample_rate = 48000 # The rate your hardware supports
+        target_sample_rate = 48000
 
-        # Resample the audio to the target sample rate for playback
+        # The torchaudio resampler can now work with the float32 tensor
         print(f"Resampling audio from {source_sample_rate} Hz to {target_sample_rate} Hz...")
-        resampled_audio = librosa.resample(y=audio_data, orig_sr=source_sample_rate, target_sr=target_sample_rate)
+        resampler = torchaudio.transforms.Resample(orig_freq=source_sample_rate, new_freq=target_sample_rate)
+        resampled_tensor = resampler(audio_tensor)
+        
+        audio_for_playback = resampled_tensor.squeeze().numpy()
 
         try:
             print(f"Playing speech (sample rate: {target_sample_rate} Hz)...")
-            sd.play(resampled_audio, samplerate=target_sample_rate, blocking=True)
+            sd.play(audio_for_playback, samplerate=target_sample_rate, blocking=True)
             print(f"Verbalised: '{text}'")
         except Exception as e:
             print(f"Error playing audio with sounddevice: {e}")
@@ -85,6 +87,6 @@ if __name__ == "__main__":
     tts = SpeechT5TTSModule()
     tts.to_gpu()
     print("\n--- Running Standalone Test ---")
-    test_sentence = "This final version resamples the audio, which should be compatible with your hardware."
+    test_sentence = "This final version should now have the correct data types for all steps."
     tts.verbalise_speech(test_sentence)
     print("--- Standalone Test Complete ---")
