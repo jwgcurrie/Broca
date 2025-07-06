@@ -13,4 +13,4 @@ class PepperController:
         """
         Makes the robot say the given text.
         """
-        print(f"Pepper says: {text}")
+        print(f"Broca says: {text}")
