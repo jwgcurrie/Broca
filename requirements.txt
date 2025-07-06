@@ -17,7 +17,7 @@ cycler==0.12.1
 datasets==3.6.0
 decorator==5.2.1
 descript-audio-codec==1.0.0
-descript-audiotools @ git+https://github.com/descriptinc/audiotools@348ebf2034ce24e2a91a553e3171cb00c0c71678
+
 dill==0.3.8
 docstring_parser==0.16
 einops==0.8.1
