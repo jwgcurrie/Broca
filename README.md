@@ -1,96 +1,114 @@
-# Broca: **B**uilt-in **R**obotic **O**ffline **C**onversational **A**pplication
+# Broca: Built-in Robotic Offline Conversational Application
 
+Broca is a foundational project for developing a local chatbot designed to interact with robots like Pepper. This project focuses on integrating local Speech-to-Text, a Large Language Model (LLM), and Text-to-Speech to enable fully offline conversational capabilities without relying on cloud services.
 
-Broca is a foundational project for developing a local chatbot designed to interact with the Pepper robot. This project focuses on integrating a small local Large Language Model (LLM) to enable conversational capabilities without relying on external cloud services.
+### Table of Contents
+* [Features](#features)
+* [Getting Started](#getting-started)
+* [Usage](#usage)
+* [Configuration](#configuration)
+* [Troubleshooting](#troubleshooting)
+
+---
 
 ## Features
 
-*   **Speech Recognition**: Integrates a local speech-to-text module using `arecord` and Hugging Face Transformers (Whisper model) for voice input.
-*   **Local LLM Integration**: Utilizes Hugging Face's `transformers` library to run a local LLM (currently `HuggingFaceTB/SmolLM2-360M-Instruct`).
-*   **Configurable Personality**: The chatbot's personality can be customized via a system prompt.
-*   **Conversation History**: Maintains a short-term memory of the conversation for more coherent interactions.
-*   **Modular Design**: Separates concerns into `llm_handler.py` (LLM interaction), `pepper_controller.py` (robot interaction), `speech_recognition.py` (speech-to-text), and `main.py` (orchestration).
-*   **Component Control**: Command-line arguments allow for individual control over speech recognition, LLM processing, and Pepper's speech output.
+* **Local Speech Recognition**: Integrates an offline speech-to-text module using `arecord` and the Hugging Face Transformers `openai/whisper-base` model.
+* **Local LLM Integration**: Utilises Hugging Face's `transformers` library to run a local LLM (e.g., `HuggingFaceTB/SmolLM2-360M-Instruct`).
+* **Local Text-to-Speech (TTS)**: Provides verbal responses using local models. Includes a high-quality, balanced engine (**Microsoft SpeechT5**) and an expressive engine (**Parler-TTS**).
+* **GPU Memory Management**: Implements a "workbench" strategy to shuttle models on and off the GPU, allowing multiple large models to run on a single, memory-constrained device.
+* **Configurable Personality**: The chatbot's personality and rules can be easily customised via a system prompt.
+* **Modular Design**: Separates concerns into `llm_handler.py`, `speech_recognition.py`, various `tts` modules, and `main.py` for orchestration.
+* **Component Control**: Command-line arguments allow for granular control over speech recognition, LLM processing, and the choice of TTS engine.
+
+---
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+These instructions will get you a copy of the project up and running on your local machine.
 
 ### Prerequisites
 
-*   Python 3.8+
-*   `pip` (Python package installer)
+* **Python 3.11**: This version is recommended for best compatibility with the required machine learning libraries.
+* **A Linux Environment**: Required for the `arecord` utility used in speech recognition. For Debian/Ubuntu, install with `sudo apt-get install alsa-utils`.
+* **NVIDIA GPU with CUDA**: Highly recommended for acceptable performance.
+* `pip` and `venv` (Python package and environment managers).
 
 ### Installation
 
 1.  **Clone the repository**:
     ```bash
-    git clone https://github.com/jwgcurrie/broca.git
-    cd broca
+    git clone [https://github.com/jwgcurrie/Broca.git](https://github.com/jwgcurrie/Broca.git)
+    cd Broca
     ```
 2.  **Create a virtual environment**:
-    It's highly recommended to use a virtual environment to manage project dependencies.
     ```bash
-    python3 -m venv broca-py
+    python3.11 -m venv venv
     ```
 3.  **Activate the virtual environment**:
-    *   On Linux/macOS:
+    * On Linux/macOS:
         ```bash
-        source ./broca-py/bin/activate
+        source venv/bin/activate
         ```
-    *   On Windows:
+    * On Windows:
         ```bash
-        .\broca-py\Scripts\activate
+        .\venv\Scripts\activate
         ```
 4.  **Install dependencies**:
+    The required packages are listed in the `requirements.txt` file included in the repository. Run:
     ```bash
     pip install -r requirements.txt
     ```
 
+---
+
 ## Usage
 
-To run the chatbot, activate your virtual environment and execute the `main.py` script:
+To run the chatbot, activate your virtual environment and execute `main.py` from the `src` directory.
 
 ```bash
-source broca-py/bin/activate
 python3 src/main.py [OPTIONS]
 ```
 
-**Options:**
+### Options
 
-*   `--no-speech`: Disable speech recognition and use manual text input.
-*   `--no-llm`: Disable LLM processing and echo input.
-*   `--no-pepper`: Disable Pepper's speech output (responses will be printed to the console).
+* `--no-speech`: Disables voice recognition, requiring you to type your input manually.
+* `--no-llm`: Disables the language model. The application will simply echo your input back as its "response".
+* `--use-local-tts`: Enables the text-to-speech engine to speak responses aloud. Without this, responses are printed to the console.
+* `--tts-engine <engine>`: Selects which TTS engine to use. Your choices are `speecht5` (the default) or `parler`.
+* `--no-pepper`: Legacy flag to disable direct robot interaction. This is now the default behaviour.
 
-**Examples:**
+### Examples
 
-*   Run with default settings (speech input, LLM processing, Pepper output):
-    `python3 src/main.py`
-*   Run with text input (no speech recognition):
-    `python3 src/main.py --no-speech`
-*   Run with speech input but no LLM processing (will echo what you say):
-    `python3 src/main.py --no-llm`
-*   Run with speech input and LLM, but no Pepper speech output (will print Broca's response):
-    `python3 src/main.py --no-pepper`
-*   Run with all components disabled (text input, echo, print response):
-    `python3 src/main.py --no-speech --no-llm --no-pepper`
+* **Run with default settings (Speech Input, LLM, SpeechT5 TTS Output):**
+    ```bash
+    python3 src/main.py --use-local-tts
+    ```
+* **Run with the alternative Parler TTS engine:**
+    ```bash
+    python3 src/main.py --use-local-tts --tts-engine parler
+    ```
+* **Run with text input and SpeechT5 output:**
+    ```bash
+    python3 src/main.py --no-speech --use-local-tts
+    ```
 
-
-The chatbot will start, and you can begin interacting with it. Type `exit` or `quit` to end the conversation.
+---
 
 ## Configuration
 
 ### LLM Model
 
-The default LLM model is `HuggingFaceTB/SmolLM2-360M-Instruct`. You can change this in `src/llm_handler.py` by modifying the `model_id` parameter in the `LLMHandler`'s `__init__` method. Be mindful of your hardware's VRAM limitations when choosing a larger model.
+The default LLM can be changed in `src/llm_handler.py` by modifying the `model_id` parameter. Be mindful of your VRAM limitations when choosing a larger model.
 
 ### Chatbot Personality
 
-The chatbot's personality is defined by the `system_prompt` variable in `src/main.py`. You can edit this string to customize Pepper's behavior and conversational style.
+The chatbot's personality is defined by the `system_prompt` string in `src/main.py`. You can edit this to customise its behaviour and conversational style.
 
-## Future Enhancements
+---
 
-*   **Full Pepper Robot Integration**: Implement actual communication with the Pepper robot via the NAOqi SDK for text-to-speech and other functionalities.
-*   **Speech-to-Text (STT)**: Add a component for converting spoken input into text.
-*   **Advanced Conversation Management**: Explore more sophisticated memory mechanisms for longer and more complex dialogues.
-*   **Error Handling and Robustness**: Improve error handling and make the application more resilient to unexpected inputs or model behaviors.
+## Troubleshooting
+
+* **`arecord: command not found`**: The `arecord` utility is missing. Install it on Debian/Ubuntu systems with `sudo apt-get install alsa-utils`.
+* **Dependency Errors during `pip install`**: This project is tested on **Python 3.11**. If you encounter installation errors, ensure you are using a compatible Python version.
+* **CUDA / GPU Errors**: Ensure your NVIDIA drivers and CUDA toolkit are installed correctly. If you have GPU issues, you can try running the models on the CPU by modifying the `device` variables in the respective module files, though performance will be significantly slower.
