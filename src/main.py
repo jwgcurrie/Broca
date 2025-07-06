@@ -1,13 +1,14 @@
 
 from pepper_controller import PepperController
 from llm_handler import LLMHandler
+from speech_recognition import SpeechRecognizer
 
 def main():
     """
     Main function to run the chatbot.
     """
     system_prompt = (
-        "You are a robot whose name is Pepper. You are friendly and curious.\n"
+        "You are a robot whose name is Broca. You are friendly and curious.\n"
         "## Rules:\n"
         "- Your responses must be short, chatty, and to the point.\n"
         "- Keep your answers to one or two sentences if possible.\n"
@@ -18,16 +19,19 @@ def main():
         "- If you cannot perform a requested action, state it briefly and then pivot to something you can do or offer a different topic.\n"
         "## Example Conversation:\n"
         "User: Hello robot, what is your name?\n"
-        "Pepper: Hi there! My name is Pepper. What can I do for you today?"
+        "Broca: Hi there! My name is Broca. What can I do for you today?"
     )
 
     pepper = PepperController()
     llm = LLMHandler(system_prompt=system_prompt)
+    speech_recognizer = SpeechRecognizer()
     history = []
 
     while True:
         try:
-            user_input = input("You: ")
+            user_input = speech_recognizer.transcribe_speech()
+            if user_input is None: # Handle KeyboardInterrupt or errors in speech recognition
+                break
             if user_input.lower() in ["exit", "quit"]:
                 break
             
@@ -36,6 +40,7 @@ def main():
 
         except KeyboardInterrupt:
             print("\nChatbot shutting down.")
+            speech_recognizer.cleanup()
             break
 
 if __name__ == "__main__":
