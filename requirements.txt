@@ -17,7 +17,7 @@ cycler==0.12.1
 datasets==3.6.0
 decorator==5.2.1
 descript-audio-codec==1.0.0
-
+descript-audiotools @ git+https://github.com/descriptinc/audiotools@348ebf2034ce24e2a91a553e3171cb00c0c71678
 dill==0.3.8
 docstring_parser==0.16
 einops==0.8.1
@@ -76,6 +76,7 @@ nvidia-cusparselt-cu12==0.6.3
 nvidia-nccl-cu12==2.26.2
 nvidia-nvjitlink-cu12==12.6.85
 nvidia-nvtx-cu12==12.6.77
+opencv-python==4.10.0.84
 packaging==25.0
 pandas==2.3.0
 parler_tts @ git+https://github.com/huggingface/parler-tts.git@d108732cd57788ec86bc857d99a6cabd66663d68
@@ -126,13 +127,13 @@ tensorboard==2.19.0
 tensorboard-data-server==0.7.2
 termcolor==3.1.0
 threadpoolctl==3.6.0
-tokenizers==0.20.3
+tokenizers==0.21.0
 torch==2.7.1
 torch-stoi==0.2.3
 torchaudio==2.7.1
 tqdm==4.67.1
 traitlets==5.14.3
-transformers==4.46.1
+transformers==4.49.0
 triton==3.3.1
 typing_extensions==4.14.1
 tzdata==2025.2
