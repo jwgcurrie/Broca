@@ -7,6 +7,7 @@ class FaceDisplay:
     """
     def __init__(self):
         self._state = 'idle'
+        self._paused = False
         self._state_lock = threading.Lock()
         self.shutdown_event = threading.Event()
 
@@ -42,10 +43,25 @@ class FaceDisplay:
         with self._state_lock:
             return self._state
 
+    def pause(self):
+        """Pauses the animation thread."""
+        with self._state_lock:
+            self._paused = True
+
+    def resume(self):
+        """Resumes the animation thread."""
+        with self._state_lock:
+            self._paused = False
+
     def _animation_loop(self):
         """The main rendering loop, run in a separate thread."""
         frame_index = 0
         while not self.shutdown_event.is_set():
+            with self._state_lock:
+                if self._paused:
+                    time.sleep(0.1) # Sleep briefly while paused
+                    continue
+
             current_state = self.get_state()
             # Default to idle state if the state is unknown
             face_frames = self.faces.get(current_state, self.faces['idle'])
