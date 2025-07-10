@@ -20,6 +20,15 @@ Broca is a foundational project for developing a local chatbot designed to inter
 * **Configurable Personality**: The chatbot's personality and rules can be easily customised via a system prompt.
 * **Modular Design**: Separates concerns into `llm_handler.py`, `speech_recognition.py`, various `tts` modules, and `main.py` for orchestration.
 * **Component Control**: Command-line arguments allow for granular control over speech recognition, LLM processing, and the choice of TTS engine.
+* **Expressive Status Display**: Provides real-time visual feedback on the bot's state (idle, listening, thinking, speaking, error) directly in the terminal using animated, color-coded faces.
+
+    | State      | Face Animation Frames       | Color  |
+    | :--------- | :-------------------------- | :----- |
+    | **Idle**   | `[ -_- ]` (Static)          | Grey   |
+    | **Listening**| `[ o.o ]` (Static)          | Blue   |
+    | **Thinking** | `[ o_O ]` <-> `[ O_o ]`     | Yellow |
+    | **Speaking** | `[ ^o^ ]` <-> `[ ^-^ ]`     | Green  |
+    | **Error**    | `[ x.! ]` <-> `[ !.x ]`     | Red    |
 
 ---
 
@@ -77,6 +86,7 @@ python3 src/main.py [OPTIONS]
 * `--use-local-tts`: Enables the text-to-speech engine to speak responses aloud. Without this, responses are printed to the console.
 * `--tts-engine <engine>`: Selects which TTS engine to use. Your choices are `speecht5` (the default) or `parler`.
 * `--no-pepper`: Legacy flag to disable direct robot interaction. This is now the default behaviour.
+* `--verbose`: Enable verbose output for debugging.
 
 ### Examples
 
