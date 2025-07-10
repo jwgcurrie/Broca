@@ -28,7 +28,7 @@ class FaceDisplay:
             'end': '\033[0m',
         }
 
-        # Start the animation thread
+        # Start the animation thread (always for terminal animation)
         self.animation_thread = threading.Thread(target=self._animation_loop)
         self.animation_thread.daemon = True
         self.animation_thread.start()
@@ -90,24 +90,6 @@ class FaceDisplay:
     def cleanup(self):
         """Shuts down the animation thread and cleans up resources."""
         self.shutdown_event.set()
-        self.animation_thread.join(timeout=1)
+        if self.animation_thread:
+            self.animation_thread.join(timeout=1)
         print()  # Print a final newline
-
-if __name__ == '__main__':
-    # Test harness to demonstrate the animated FaceDisplay class
-    face = FaceDisplay()
-    print("--- Testing Animated FaceDisplay Terminal Output ---")
-    print("Cycling through states...")
-    try:
-        states = ['listening', 'thinking', 'speaking', 'idle', 'error']
-        for state in states:
-            print(f"\nSetting state to: {state}")
-            face.set_state(state)
-            # Let the animation run for a few seconds
-            time.sleep(4) 
-
-    except KeyboardInterrupt:
-        print("\nTest interrupted.")
-    finally:
-        face.cleanup()
-        print("--- Test Complete ---")
