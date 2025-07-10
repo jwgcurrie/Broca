@@ -5,7 +5,7 @@ class LLMHandler:
     """
     Handles the local LLM using Hugging Face transformers.
     """
-    def __init__(self, model_id="HuggingFaceTB/SmolLM2-360M-Instruct", system_prompt="", max_history=5):
+    def __init__(self, model_id="HuggingFaceTB/SmolLM2-360M-Instruct", system_prompt="", max_history=5, verbose=False):
         """
         Initializes the LLM handler on the CPU.
         """
@@ -23,23 +23,24 @@ class LLMHandler:
         
         self.system_prompt = system_prompt
         self.max_history = max_history
-        print(f"✅ LLM initialised on {self.device}.")
+        self.verbose = verbose
+        if self.verbose: print(f"✅ LLM initialised on {self.device}.")
 
     def to_gpu(self):
         """Moves the model to the GPU if available."""
         if torch.cuda.is_available() and self.device == "cpu":
-            print("Moving LLM to GPU...")
+            if self.verbose: print("Moving LLM to GPU...")
             self.device = "cuda:0"
             self.model.to(self.device)
-            print("✅ LLM on GPU.")
+            if self.verbose: print("✅ LLM on GPU.")
 
     def to_cpu(self):
         """Moves the model to the CPU."""
         if self.device != "cpu":
-            print("Moving LLM to CPU...")
+            if self.verbose: print("Moving LLM to CPU...")
             self.device = "cpu"
             self.model.to(self.device)
-            print("✅ LLM on CPU.")
+            if self.verbose: print("✅ LLM on CPU.")
 
     def get_response(self, prompt, history):
         """

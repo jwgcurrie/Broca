@@ -40,6 +40,7 @@ def main():
     parser.add_argument("--no-llm", action="store_true", help="Disable LLM processing and echo input.")
     parser.add_argument("--no-pepper", action="store_true", help="Disable Pepper's speech output, printing to console instead.")
     parser.add_argument("--use-local-tts", action="store_true", help="Enable local text-to-speech.")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output for debugging.")
 
     parser.add_argument(
         "--tts-engine",
@@ -63,26 +64,26 @@ def main():
         system_prompt = (
             "You are a robot named Broca. You are friendly and curious. Keep your answers to one or two sentences."
         )
-        llm = LLMHandler(system_prompt=system_prompt)
+        llm = LLMHandler(system_prompt=system_prompt, verbose=args.verbose)
 
     recogniser = None
     if not args.no_speech and SpeechRecognizer:
-        recogniser = SpeechRecognizer()
+        recogniser = SpeechRecognizer(verbose=args.verbose)
 
     tts = None
     if args.use_local_tts:
         print(f"Selected TTS engine: {args.tts_engine}")
         if args.tts_engine == 'parler' and ParlerTTSModule:
-            tts = ParlerTTSModule()
+            tts = ParlerTTSModule(verbose=args.verbose)
         elif args.tts_engine == 'speecht5' and SpeechT5TTSModule:
-            tts = SpeechT5TTSModule()
+            tts = SpeechT5TTSModule(verbose=args.verbose)
 
         if tts is None:
             print(f"Warning: Could not initialise the '{args.tts_engine}' TTS engine.")
 
     history = []
     if face: face.set_state('idle')
-    print("Chatbot initialised. Starting main loop...")
+    if args.verbose: print("Chatbot initialised. Starting main loop...")
 
     try:
         while True:
