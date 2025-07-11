@@ -63,7 +63,7 @@ def main():
     llm = None
     if not args.no_llm and LLMHandler:
         system_prompt = (
-            "You are a robot named Broca. You are friendly and curious. Keep your answers to one or two sentences."
+            "You are Broca, a helpful assistant. Respond in one concise sentence."
         )
         llm = LLMHandler(system_prompt=system_prompt, verbose=args.verbose)
 
