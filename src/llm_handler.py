@@ -75,28 +75,18 @@ class LLMHandler:
         with torch.no_grad():
             res = self.model.generate(
                 **inputs,
-                max_new_tokens=120,
+                max_new_tokens=150,
                 do_sample=True,
                 temperature=0.75,
-                top_p=0.95,
+                top_p=0.9,
                 repetition_penalty=1.2, # Added repetition penalty
                 pad_token_id=self.tokenizer.pad_token_id,
                 eos_token_id=self.tokenizer.eos_token_id,
             )
         
-        full_response_text = self.tokenizer.decode(res[0][input_length:], skip_special_tokens=True).strip()
+        response_text = self.tokenizer.decode(res[0][input_length:], skip_special_tokens=True).strip()
         
-        # Aggressive conciseness: Extract only the first complete sentence
-        first_sentence_match = re.match(r"^[^.!?]*[.!?]", full_response_text)
-        if first_sentence_match:
-            response_text = first_sentence_match.group(0).strip()
-        else:
-            # If no complete sentence found, take the first part up to a reasonable length
-            response_text = full_response_text.split('\n')[0].strip() # Take first line
-            if len(response_text) > 100: # Arbitrary length to prevent very long first lines
-                response_text = response_text[:100] + "..."
-
-        # Update keywords with assistant's response (the truncated one)
+        # Update keywords with assistant's response
         self.keyword_manager.update_keywords(response_text)
 
         history.append({"role": "assistant", "content": response_text})

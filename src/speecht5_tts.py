@@ -4,6 +4,7 @@ from datasets import load_dataset
 import sounddevice as sd
 import torchaudio
 import numpy as np 
+import re 
 
 class SpeechT5TTSModule:
     """
@@ -54,35 +55,41 @@ class SpeechT5TTSModule:
 
     def verbalise_speech(self, text):
         """
-        Synthesizes and plays audio for the given text.
+        Synthesizes and plays audio for the given text, handling long inputs by splitting into sentences.
         """
         if self.verbose: print(f"Synthesizing speech with SpeechT5 for: '{text}'")
         
-        inputs = self.processor(text=text, return_tensors="pt").to(self.device)
+        # Split text into sentences
+        sentences = re.split(r'(?<=[.!?]) +(?=\S)', text)
+        if self.verbose: print(f"Splitting into {len(sentences)} sentences.")
 
-        with torch.no_grad():
-            spectrogram = self.model.generate_speech(
-                inputs["input_ids"], 
-                speaker_embeddings=self.speaker_embeddings
-            )
-            audio_tensor = self.vocoder(spectrogram).cpu().to(torch.float32)
+        for sentence in sentences:
+            if not sentence.strip():
+                continue
 
-        source_sample_rate = 16000
-        target_sample_rate = 48000
+            inputs = self.processor(text=sentence, return_tensors="pt").to(self.device)
 
-        # The torchaudio resampler can now work with the float32 tensor
-        if self.verbose: print(f"Resampling audio from {source_sample_rate} Hz to {target_sample_rate} Hz...")
-        resampler = torchaudio.transforms.Resample(orig_freq=source_sample_rate, new_freq=target_sample_rate)
-        resampled_tensor = resampler(audio_tensor)
-        
-        audio_for_playback = resampled_tensor.squeeze().numpy()
+            with torch.no_grad():
+                spectrogram = self.model.generate_speech(
+                    inputs["input_ids"], 
+                    speaker_embeddings=self.speaker_embeddings
+                )
+                audio_tensor = self.vocoder(spectrogram).cpu().to(torch.float32)
 
-        try:
-            if self.verbose: print(f"Playing speech (sample rate: {target_sample_rate} Hz)...")
-            sd.play(audio_for_playback, samplerate=target_sample_rate, blocking=True)
-            if self.verbose: print(f"Verbalised: '{text}'")
-        except Exception as e:
-            if self.verbose: print(f"Error playing audio with sounddevice: {e}")
+            source_sample_rate = 16000
+            target_sample_rate = 48000
+
+            if self.verbose: print(f"Resampling audio from {source_sample_rate} Hz to {target_sample_rate} Hz...")
+            resampler = torchaudio.transforms.Resample(orig_freq=source_sample_rate, new_freq=target_sample_rate)
+            resampled_tensor = resampler(audio_tensor)
+            
+            audio_for_playback = resampled_tensor.squeeze().numpy()
+
+            try:
+                if self.verbose: print(f"Playing speech (sample rate: {target_sample_rate} Hz)...: '{sentence}'")
+                sd.play(audio_for_playback, samplerate=target_sample_rate, blocking=True)
+            except Exception as e:
+                if self.verbose: print(f"Error playing audio with sounddevice: {e}")
 
 if __name__ == "__main__":
     tts = SpeechT5TTSModule()
